@@ -1,4 +1,4 @@
-#Hörmann Promatic 3 gate control an web ui
+# Hörmann Promatic 3 gate control an web ui
 
 This project contains a spring boot application including pi4j to control the Hörmann Promatic 3 actuator.
 Also the application contains a Web Ui to trigger events an read sensor data.
