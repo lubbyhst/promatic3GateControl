@@ -1,9 +1,9 @@
 package com.github.lubbyhst.gpio.sensors;
 
-import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
 import com.pi4j.io.gpio.Pin;
@@ -17,18 +17,18 @@ public class DigitalOutput {
 
     private final GpioPinDigitalOutput digitalOutput;
 
-    public DigitalOutput(int pinAddress) {
+    public DigitalOutput(final GpioController gpioController, final int pinAddress) {
         this.raspiPin = RaspiPin.getPinByAddress(pinAddress);
         this.digitalOutput = GpioFactory.getInstance().provisionDigitalOutputPin(raspiPin, PinState.LOW);
         this.digitalOutput.setShutdownOptions(true, PinState.LOW);
     }
 
-    public void pressFor(int millis){
+    public void pressFor(final int millis) {
         try {
             digitalOutput.high();
             TimeUnit.MILLISECONDS.sleep(millis);
             digitalOutput.low();
-        }catch (InterruptedException ex){
+        } catch (final InterruptedException ex) {
             logger.severe("Interrupt exception while waiting for digital output.");
         }
     }

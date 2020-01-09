@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.github.lubbyhst.components.GatePinConfiguration;
 import com.github.lubbyhst.enums.GateStatus;
 import com.github.lubbyhst.gpio.sensors.DigitalInput;
+import com.github.lubbyhst.service.GpioService;
 
 @Service
 public class GateStatusService {
@@ -24,21 +25,25 @@ public class GateStatusService {
     private final DigitalInput gateVentilationPin;
     private final DigitalInput gateMovingPin;
 
-    public GateStatusService(@Autowired final GatePinConfiguration gatePinConfiguration){
-        gateOpenPin = new DigitalInput(gatePinConfiguration.getStatusPinOpen());
-        gateClosePin = new DigitalInput(gatePinConfiguration.getStatusPinClose());
-        gateVentilationPin = new DigitalInput(gatePinConfiguration.getStatusPinVentilation());
-        gateMovingPin = new DigitalInput(gatePinConfiguration.getStatusPinMoving());
+    public GateStatusService(
+            @Autowired
+            final GatePinConfiguration gatePinConfiguration,
+            @Autowired
+            final GpioService gpioService) {
+        gateOpenPin = gpioService.getDigitalInput(gatePinConfiguration.getStatusPinOpen());
+        gateClosePin = gpioService.getDigitalInput(gatePinConfiguration.getStatusPinClose());
+        gateVentilationPin = gpioService.getDigitalInput(gatePinConfiguration.getStatusPinVentilation());
+        gateMovingPin = gpioService.getDigitalInput(gatePinConfiguration.getStatusPinMoving());
     }
 
     public GateStatus getActualGateStatus(){
-        if(gateOpenPin.isHigh()){
+        if (gateOpenPin.isLow()) {
             return GateStatus.OPEN;
         }
-        if(gateClosePin.isHigh()){
+        if (gateClosePin.isLow()) {
             return GateStatus.CLOSED;
         }
-        if (gateVentilationPin.isHigh()) {
+        if (gateVentilationPin.isLow()) {
             return GateStatus.VENTILATION;
         }
         //Assume partial open gate
@@ -46,7 +51,8 @@ public class GateStatusService {
     }
 
     private boolean isGateMoving(){
-        return gateMovingPin.isHigh();
+        return false;//no moving sensor installed
+        //return gateMovingPin.isLow();
     }
 
     public void waitForGate(){
@@ -70,13 +76,13 @@ public class GateStatusService {
                     .pollingEvery(Duration.ofSeconds(1)).until(new Function<GateStatus, GateStatus>() {
                         @Override
                         public GateStatus apply(final GateStatus gateStatusToWaitFor) {
-                            if(gateClosePin.isHigh() && GateStatus.CLOSED.equals(gateStatusToWaitFor)){
+                            if (gateClosePin.isLow() && GateStatus.CLOSED.equals(gateStatusToWaitFor)) {
                                 return GateStatus.CLOSED;
                             }
-                            if(gateOpenPin.isHigh() && GateStatus.OPEN.equals(gateStatusToWaitFor)){
+                            if (gateOpenPin.isLow() && GateStatus.OPEN.equals(gateStatusToWaitFor)) {
                                 return GateStatus.OPEN;
                             }
-                            if(gateVentilationPin.isHigh() && GateStatus.VENTILATION.equals(gateStatusToWaitFor)){
+                            if (gateVentilationPin.isLow() && GateStatus.VENTILATION.equals(gateStatusToWaitFor)) {
                                 return GateStatus.VENTILATION;
                             }
                             logger.info(String.format("Waiting for gate to change status from %s to %s", getActualGateStatus(), gateStatusToWaitFor));

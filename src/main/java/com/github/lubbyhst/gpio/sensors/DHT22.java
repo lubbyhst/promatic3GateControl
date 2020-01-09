@@ -1,9 +1,7 @@
 package com.github.lubbyhst.gpio.sensors;
+
 import java.util.Random;
 import java.util.logging.Logger;
-
-import org.springframework.context.ApplicationListener;
-import org.springframework.stereotype.Component;
 
 import com.github.lubbyhst.dto.DHT22Result;
 import com.pi4j.platform.Platform;
@@ -17,8 +15,7 @@ public class DHT22{
     private final int[] dht22_dat = {0, 0, 0, 0, 0};
     private final boolean isSimulated = PlatformManager.getPlatform().equals(Platform.SIMULATED);
 
-
-    public DHT22(int writingPin) {
+    public DHT22(final int writingPin) {
         if(isSimulated){
          return;
         }
@@ -31,7 +28,7 @@ public class DHT22{
         GpioUtil.export(writingPin, GpioUtil.DIRECTION_OUT);
     }
 
-    private int pollDHT22(int readingPin) {
+    private int pollDHT22(final int readingPin) {
         int lastState = Gpio.HIGH;
         int j = 0;
         dht22_dat[0] = dht22_dat[1] = dht22_dat[2] = dht22_dat[3] = dht22_dat[4] = 0;
@@ -73,12 +70,12 @@ public class DHT22{
 
     }
 
-    public DHT22Result read(int pinNumber) {
+    public DHT22Result read(final int pinNumber) {
         if(isSimulated){
             logger.fine("Simulated ENV. Returning random values.");
             return new DHT22Result(new Random(System.currentTimeMillis()).nextFloat()*100,new Random(System.currentTimeMillis()+100).nextFloat()*100);
         }
-        int pollDataCheck = pollDHT22(pinNumber);
+        final int pollDataCheck = pollDHT22(pinNumber);
         if (pollDataCheck >= 40 && checkParity()) {
 
             float temperature;

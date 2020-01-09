@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.github.lubbyhst.components.GatePinConfiguration;
 import com.github.lubbyhst.enums.GateStatus;
 import com.github.lubbyhst.gpio.sensors.DigitalOutput;
+import com.github.lubbyhst.service.GpioService;
 
 @Service
 public class GateControlService {
@@ -16,10 +17,13 @@ public class GateControlService {
     private final DigitalOutput gateCloseOpenButton;
 
     public GateControlService(@Autowired final GateStatusService gateStatusService,
-            @Autowired final GatePinConfiguration gatePinConfiguration) {
+            @Autowired
+            final GatePinConfiguration gatePinConfiguration,
+            @Autowired
+            final GpioService gpioService) {
         this.gateStatusService = gateStatusService;
-        this.gateVentilationButton = new DigitalOutput(gatePinConfiguration.getSwitchPinVentilation());
-        this.gateCloseOpenButton = new DigitalOutput(gatePinConfiguration.getSwitchPinCloseOpen());
+        this.gateVentilationButton = gpioService.getDigitalOutput(gatePinConfiguration.getSwitchPinVentilation());
+        this.gateCloseOpenButton = gpioService.getDigitalOutput(gatePinConfiguration.getSwitchPinCloseOpen());
     }
 
     public GateStatus changeGateToVentilation(){
@@ -31,6 +35,9 @@ public class GateControlService {
     }
 
     public GateStatus closeGate(){
+        if (GateStatus.CLOSED.equals(gateStatusService.getActualGateStatus())) {
+            return gateStatusService.getActualGateStatus();
+        }
         if(!GateStatus.VENTILATION.equals(gateStatusService.getActualGateStatus())){
             gateVentilationButton.pressFor(defaultButtonPressTimeout);
             gateStatusService.waitForGateStatus(GateStatus.VENTILATION);
@@ -39,7 +46,7 @@ public class GateControlService {
         return gateStatusService.waitForGateStatus(GateStatus.CLOSED);
     }
 
-    private GateStatus openGate(){
+    public GateStatus openGate() {
         if(!GateStatus.VENTILATION.equals(gateStatusService.getActualGateStatus())){
             gateVentilationButton.pressFor(defaultButtonPressTimeout);
             gateStatusService.waitForGateStatus(GateStatus.VENTILATION);

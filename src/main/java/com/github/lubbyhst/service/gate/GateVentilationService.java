@@ -1,5 +1,7 @@
 package com.github.lubbyhst.service.gate;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,9 @@ public class GateVentilationService {
     private static final Logger logger = Logger.getLogger(GateVentilationService.class.getName());
 
     private static final float humidityThreshold = 60;
+    private static final int delayAfterVentilationStarted = 30;
+
+    private static Instant ventilationStarted;
 
     @Autowired
     private DHT22Service dht22Service;
@@ -28,7 +33,11 @@ public class GateVentilationService {
     public void checkVentilationNeeded() {
         gateStatusService.waitForGate();
         final GateStatus gateStatus = gateStatusService.getActualGateStatus();
-        logger.info(String.format("Start check if ventilatio is needed. Gate status is: %s", gateStatus));
+        logger.info(String.format("Start check if ventilation is needed. Gate status is: %s", gateStatus));
+        if (ventilationStarted != null && Duration.between(Instant.now(), ventilationStarted).toMinutes() <= delayAfterVentilationStarted) {
+            logger.info("Ventilation started less than 30 minutes ago. Skipping ventilation check.");
+            return;
+        }
         if (GateStatus.OPEN.equals(gateStatus)) {
             logger.info("Gate actually open. Ventilation not needed.");
             return;
@@ -60,12 +69,14 @@ public class GateVentilationService {
                 if (GateStatus.CLOSED.equals(gateStatus)) {
                     logger.info("Gate is close. Ventilation could be started.");
                     final GateStatus newGateSatus = gateControlService.changeGateToVentilation();
+                    ventilationStarted = Instant.now();
                     if (GateStatus.CLOSED.equals(newGateSatus) || GateStatus.OPEN.equals(newGateSatus)) {
                         logger.warning("Gate changed not to ventilation status.");
                         return;
                     }
                     logger.info(String.format("Gate changed to %s", newGateSatus));
                 }
+                logger.info(String.format("Gate is not closed. Skipping Gate Ventilation. Status was %s", gateStatus));
                 return;
             } else {
                 logger.info(String.format("Indoor humidity (%s percent) is lower than 60 percent. Skipping ventilation.",

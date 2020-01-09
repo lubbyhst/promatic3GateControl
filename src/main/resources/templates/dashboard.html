@@ -58,6 +58,15 @@
         <form action="#" th:action="@{/}" method="post">
             <button class="w3-button w3-dark-grey" type="submit">Trigger ventilation check<i class="fa fa-arrow-right"></i></button>
         </form>
+        <form action="#" th:action="@{/}" method="post">
+            <button class="w3-button w3-dark-grey" type="submit" name="action" value="close">Close Gate</button>
+            <button class="w3-button w3-dark-grey" type="submit" name="action" value="ventilation">Change Gate to
+                Ventilation
+            </button>
+            <button class="w3-button w3-dark-grey" type="submit" name="action" value="open">Open Gate
+            </button>
+        </form>
+
     </div>
 </div>
 </body>
