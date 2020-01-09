@@ -30,6 +30,10 @@ public class GateVentilationService {
     @Autowired
     private GateStatusService gateStatusService;
 
+    public void reset() {
+        ventilationStarted = null;
+    }
+
     public void checkVentilationNeeded() {
         gateStatusService.waitForGate();
         final GateStatus gateStatus = gateStatusService.getActualGateStatus();
@@ -74,7 +78,8 @@ public class GateVentilationService {
                         logger.warning("Gate changed not to ventilation status.");
                         return;
                     }
-                    logger.info(String.format("Gate changed to %s", newGateSatus));
+                    logger.info(String.format("Gate successful changed to %s", newGateSatus));
+                    return;
                 }
                 logger.info(String.format("Gate is not closed. Skipping Gate Ventilation. Status was %s", gateStatus));
                 return;

@@ -76,13 +76,13 @@ public class GateStatusService {
                     .pollingEvery(Duration.ofSeconds(1)).until(new Function<GateStatus, GateStatus>() {
                         @Override
                         public GateStatus apply(final GateStatus gateStatusToWaitFor) {
-                            if (gateClosePin.isLow() && GateStatus.CLOSED.equals(gateStatusToWaitFor)) {
+                            if (getActualGateStatus().equals(gateStatusToWaitFor) && GateStatus.CLOSED.equals(gateStatusToWaitFor)) {
                                 return GateStatus.CLOSED;
                             }
-                            if (gateOpenPin.isLow() && GateStatus.OPEN.equals(gateStatusToWaitFor)) {
+                            if (getActualGateStatus().equals(gateStatusToWaitFor) && GateStatus.OPEN.equals(gateStatusToWaitFor)) {
                                 return GateStatus.OPEN;
                             }
-                            if (gateVentilationPin.isLow() && GateStatus.VENTILATION.equals(gateStatusToWaitFor)) {
+                            if (getActualGateStatus().equals(gateStatusToWaitFor) && GateStatus.VENTILATION.equals(gateStatusToWaitFor)) {
                                 return GateStatus.VENTILATION;
                             }
                             logger.info(String.format("Waiting for gate to change status from %s to %s", getActualGateStatus(), gateStatusToWaitFor));

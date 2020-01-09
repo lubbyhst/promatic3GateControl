@@ -52,16 +52,19 @@ public class TestController {
 
     @RequestMapping(value = "/", method = RequestMethod.POST, params = "action=close")
     public void save() {
+        gateVentilationService.reset();
         gateControlService.closeGate();
     }
 
     @RequestMapping(value = "/", method = RequestMethod.POST, params = "action=ventilation")
     public void ventialtion() {
+        gateVentilationService.reset();
         gateControlService.changeGateToVentilation();
     }
 
     @RequestMapping(value = "/", method = RequestMethod.POST, params = "action=open")
     public void open() {
+        gateVentilationService.reset();
         gateControlService.openGate();
     }
 }

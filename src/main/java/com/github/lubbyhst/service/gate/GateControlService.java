@@ -47,6 +47,9 @@ public class GateControlService {
     }
 
     public GateStatus openGate() {
+        if (GateStatus.OPEN.equals(gateStatusService.getActualGateStatus())) {
+            return gateStatusService.getActualGateStatus();
+        }
         if(!GateStatus.VENTILATION.equals(gateStatusService.getActualGateStatus())){
             gateVentilationButton.pressFor(defaultButtonPressTimeout);
             gateStatusService.waitForGateStatus(GateStatus.VENTILATION);
