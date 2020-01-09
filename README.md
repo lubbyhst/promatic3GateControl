@@ -8,7 +8,10 @@ The main task of the application is to open the gate for ventilation, if the hum
 
 ### Configuration
 The Pin configuration could be adjusted via the application.properties under src/main/resouces
+Be aware that the pin addresses are not the regular Raspbery Pi pins.
+Please use the wiringPi Pin addresses for configuration. 
 
+See: [WiringPi Pins](https://hackage.haskell.org/package/wiringPi)
 ### How to compile?
 
 ```shell script
