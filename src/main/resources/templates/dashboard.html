@@ -55,16 +55,21 @@
     </div>
     <hr>
     <div class="w3-container">
-        <form action="#" th:action="@{/}" method="post">
+        <form action="#" th:action="@{/check/ventilation}" method="get">
             <button class="w3-button w3-dark-grey" type="submit">Trigger ventilation check<i class="fa fa-arrow-right"></i></button>
         </form>
-        <form action="#" th:action="@{/}" method="post">
+        <form action="#" th:action="@{/gate/close}" method="get">
             <button class="w3-button w3-dark-grey" type="submit" name="action" value="close">Close Gate</button>
+        </form>
+        <form action="#" th:action="@{/gate/ventilation}" method="get">
             <button class="w3-button w3-dark-grey" type="submit" name="action" value="ventilation">Change Gate to
                 Ventilation
             </button>
+        </form>
+        <form action="#" th:action="@{/gate/open}" method="get">
             <button class="w3-button w3-dark-grey" type="submit" name="action" value="open">Open Gate
             </button>
+        </form>
         </form>
 
     </div>

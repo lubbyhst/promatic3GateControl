@@ -1,24 +1,19 @@
-package com.github.lubbyhst;
+package com.github.lubbyhst.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.github.lubbyhst.service.DHT22Service;
-import com.github.lubbyhst.service.GpioService;
 import com.github.lubbyhst.service.gate.GateControlService;
 import com.github.lubbyhst.service.gate.GateStatusService;
 import com.github.lubbyhst.service.gate.GateVentilationService;
 
 @Controller
-public class TestController {
-
-    @Autowired
-    private GpioService gpioService;
+public class GateStatusController {
 
     @Autowired
     private GateVentilationService gateVentilationService;
@@ -32,39 +27,46 @@ public class TestController {
     @Autowired
     private DHT22Service dht22Service;
 
+    private void setModelAttributes(final Model model) {
+        model.addAttribute("dht22Result", dht22Service.getDataFromIndoorSensor());
+        model.addAttribute("gateStatus",
+                gateStatusService.isGateInteractionInProgress() ? "moving" : this.gateStatusService.getActualGateStatus());
+    }
+
     @GetMapping("/")
     public String main(final Model model){
-        model.addAttribute("message", "User!");
-        model.addAttribute("dht22Result", dht22Service.getDataFromIndoorSensor());
-        model.addAttribute("gateStatus", this.gateStatusService.getActualGateStatus());
-
+        setModelAttributes(model);
         return "dashboard";
     }
 
-    @PostMapping("/")
-    public String execute(final Model model){
+    @RequestMapping("/check/ventilation")
+    public String checkVentialtion(final Model model) {
         gateVentilationService.checkVentilationNeeded();
-        model.addAttribute("message", "User!");
-        model.addAttribute("dht22Result", dht22Service.getDataFromIndoorSensor());
-        model.addAttribute("gateStatus", this.gateStatusService.getActualGateStatus());
+        setModelAttributes(model);
         return "dashboard";
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.POST, params = "action=close")
-    public void save() {
+    @RequestMapping(value = "/gate/close", method = RequestMethod.GET)
+    public String close(final Model model) {
         gateVentilationService.reset();
         gateControlService.closeGate();
+        setModelAttributes(model);
+        return "dashboard";
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.POST, params = "action=ventilation")
-    public void ventialtion() {
+    @RequestMapping(value = "/gate/ventilation", method = RequestMethod.GET)
+    public String ventialtion(final Model model) {
         gateVentilationService.reset();
         gateControlService.changeGateToVentilation();
+        setModelAttributes(model);
+        return "dashboard";
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.POST, params = "action=open")
-    public void open() {
+    @RequestMapping(value = "/gate/open", method = RequestMethod.GET)
+    public String open(final Model model) {
         gateVentilationService.reset();
         gateControlService.openGate();
+        setModelAttributes(model);
+        return "dashboard";
     }
 }
