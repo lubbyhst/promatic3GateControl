@@ -25,6 +25,8 @@ public class GateStatusService {
     private final DigitalInput gateVentilationPin;
     private final DigitalInput gateMovingPin;
 
+    private boolean gateInteractionInProgress = false;
+
     public GateStatusService(
             @Autowired
             final GatePinConfiguration gatePinConfiguration,
@@ -50,14 +52,14 @@ public class GateStatusService {
         return GateStatus.OPEN;
     }
 
-    private boolean isGateMoving(){
-        return false;//no moving sensor installed
+    public boolean isGateInteractionInProgress() {
+        return gateInteractionInProgress;//no moving sensor installed
         //return gateMovingPin.isLow();
     }
 
     public void waitForGate(){
         int counter = 0;
-        while (isGateMoving() && counter <= 30){
+        while (isGateInteractionInProgress() && counter <= 60) {
             try {
                 logger.info("Gate is moving. Waiting until gate stops.");
                 TimeUnit.SECONDS.sleep(1);
@@ -93,6 +95,10 @@ public class GateStatusService {
             logger.severe(String.format("Gate did not reach the expected status within timeout. Actual status %s, Status wanted %s", gateStatus, gateStatusToWaitFor));
         }
         return gateStatus;
+    }
+
+    public void setGateInteractionInProgress(final boolean interactionInProgress) {
+        this.gateInteractionInProgress = interactionInProgress;
     }
 
 }

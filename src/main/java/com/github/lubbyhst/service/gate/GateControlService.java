@@ -27,15 +27,25 @@ public class GateControlService {
     }
 
     public GateStatus changeGateToVentilation(){
+        if (gateStatusService.isGateInteractionInProgress()) {
+            return gateStatusService.getActualGateStatus();
+        }
+        gateStatusService.setGateInteractionInProgress(true);
         if(!GateStatus.VENTILATION.equals(gateStatusService.getActualGateStatus())){
             gateVentilationButton.pressFor(defaultButtonPressTimeout);
-            return gateStatusService.waitForGateStatus(GateStatus.VENTILATION);
+            gateStatusService.waitForGateStatus(GateStatus.VENTILATION);
         }
+        gateStatusService.setGateInteractionInProgress(false);
         return gateStatusService.getActualGateStatus();
     }
 
     public GateStatus closeGate(){
+        if (gateStatusService.isGateInteractionInProgress()) {
+            return gateStatusService.getActualGateStatus();
+        }
+        gateStatusService.setGateInteractionInProgress(true);
         if (GateStatus.CLOSED.equals(gateStatusService.getActualGateStatus())) {
+            gateStatusService.setGateInteractionInProgress(false);
             return gateStatusService.getActualGateStatus();
         }
         if(!GateStatus.VENTILATION.equals(gateStatusService.getActualGateStatus())){
@@ -43,11 +53,18 @@ public class GateControlService {
             gateStatusService.waitForGateStatus(GateStatus.VENTILATION);
         }
         gateVentilationButton.pressFor(defaultButtonPressTimeout);
-        return gateStatusService.waitForGateStatus(GateStatus.CLOSED);
+        gateStatusService.waitForGateStatus(GateStatus.CLOSED);
+        gateStatusService.setGateInteractionInProgress(false);
+        return gateStatusService.getActualGateStatus();
     }
 
     public GateStatus openGate() {
+        if (gateStatusService.isGateInteractionInProgress()) {
+            return gateStatusService.getActualGateStatus();
+        }
+        gateStatusService.setGateInteractionInProgress(true);
         if (GateStatus.OPEN.equals(gateStatusService.getActualGateStatus())) {
+            gateStatusService.setGateInteractionInProgress(false);
             return gateStatusService.getActualGateStatus();
         }
         if(!GateStatus.VENTILATION.equals(gateStatusService.getActualGateStatus())){
@@ -55,8 +72,9 @@ public class GateControlService {
             gateStatusService.waitForGateStatus(GateStatus.VENTILATION);
         }
         gateCloseOpenButton.pressFor(defaultButtonPressTimeout);
-        return gateStatusService.waitForGateStatus(GateStatus.OPEN);
+        gateStatusService.waitForGateStatus(GateStatus.OPEN);
+        gateStatusService.setGateInteractionInProgress(false);
+        return gateStatusService.getActualGateStatus();
     }
-
 
 }

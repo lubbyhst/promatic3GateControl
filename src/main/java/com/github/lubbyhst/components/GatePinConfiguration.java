@@ -6,9 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class GatePinConfiguration {
 
-    private final int humidityIndoorPinWriting;
     private final int humidityIndoorPinReading;
-    private final int humidityOutdoorPinWriting;
     private final int humidityOutdoorPinReading;
 
     private final int statusPinClose;
@@ -20,12 +18,8 @@ public class GatePinConfiguration {
     private final int switchPinVentilation;
 
     public GatePinConfiguration(
-            @Value("${gpio.gate.sensor.humidity.indoor.pin.writing}")
-            final int humidityIndoorPinWriting,
             @Value("${gpio.gate.sensor.humidity.indoor.pin.reading}")
             final int humidityIndoorPinReading,
-            @Value("${gpio.gate.sensor.humidity.outdoor.pin.writing}")
-            final int humidityOutdoorPinWriting,
             @Value("${gpio.gate.sensor.humidity.outdoor.pin.reading}")
             final int humidityOutdoorPinReading,
             @Value("${gpio.gate.sensor.status.pin.close}")
@@ -40,9 +34,7 @@ public class GatePinConfiguration {
             final int switchPinCloseOpen,
             @Value("${gpio.gate.switch.pin.ventilation}")
             final int switchPinVentilation) {
-        this.humidityIndoorPinWriting = humidityIndoorPinWriting;
         this.humidityIndoorPinReading = humidityIndoorPinReading;
-        this.humidityOutdoorPinWriting = humidityOutdoorPinWriting;
         this.humidityOutdoorPinReading = humidityOutdoorPinReading;
         this.statusPinClose = statusPinClose;
         this.statusPinOpen = statusPinOpen;
@@ -52,17 +44,11 @@ public class GatePinConfiguration {
         this.switchPinVentilation = switchPinVentilation;
     }
 
-    public int getHumidityIndoorPinWriting() {
-        return humidityIndoorPinWriting;
-    }
 
     public int getHumidityIndoorPinReading() {
         return humidityIndoorPinReading;
     }
 
-    public int getHumidityOutdoorPinWriting() {
-        return humidityOutdoorPinWriting;
-    }
 
     public int getHumidityOutdoorPinReading() {
         return humidityOutdoorPinReading;

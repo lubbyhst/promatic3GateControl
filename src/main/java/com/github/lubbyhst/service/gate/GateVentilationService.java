@@ -35,7 +35,10 @@ public class GateVentilationService {
     }
 
     public void checkVentilationNeeded() {
-        gateStatusService.waitForGate();
+        if (gateStatusService.isGateInteractionInProgress()) {
+            logger.info("Gate is currently in use. Skipping check until next iteration.");
+            return;
+        }
         final GateStatus gateStatus = gateStatusService.getActualGateStatus();
         logger.info(String.format("Start check if ventilation is needed. Gate status is: %s", gateStatus));
         if (ventilationStarted != null && Duration.between(Instant.now(), ventilationStarted).toMinutes() <= delayAfterVentilationStarted) {

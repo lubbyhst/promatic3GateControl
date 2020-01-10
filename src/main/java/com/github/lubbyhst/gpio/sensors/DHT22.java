@@ -7,7 +7,6 @@ import com.github.lubbyhst.dto.DHT22Result;
 import com.pi4j.platform.Platform;
 import com.pi4j.platform.PlatformManager;
 import com.pi4j.wiringpi.Gpio;
-import com.pi4j.wiringpi.GpioUtil;
 
 public class DHT22{
     private static final Logger logger = Logger.getLogger(DHT22.class.getName());
@@ -15,7 +14,7 @@ public class DHT22{
     private final int[] dht22_dat = {0, 0, 0, 0, 0};
     private final boolean isSimulated = PlatformManager.getPlatform().equals(Platform.SIMULATED);
 
-    public DHT22(final int writingPin) {
+    public DHT22() {
         if(isSimulated){
          return;
         }
@@ -24,8 +23,6 @@ public class DHT22{
             logger.warning(" ==>> GPIO SETUP FAILED");
             return;
         }
-
-        GpioUtil.export(writingPin, GpioUtil.DIRECTION_OUT);
     }
 
     private int pollDHT22(final int readingPin) {
