@@ -3,7 +3,6 @@ package com.github.lubbyhst.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -34,33 +33,13 @@ public class GateStatusController {
                 gateStatusService.isGateInteractionInProgress() ? "moving" : this.gateStatusService.getActualGateStatus());
     }
 
-    @GetMapping("/")
+    @RequestMapping(value = "/", method = RequestMethod.GET)
     public String main(final Model model){
         setModelAttributes(model);
         return "dashboard";
     }
 
-    @RequestMapping("/api/indoor/humidity")
-    public float getIndoorHumidity() {
-        return dht22Service.getDataFromIndoorSensor().getHumidity();
-    }
-
-    @RequestMapping("/api/indoor/temperature")
-    public float getIndoorTemerature() {
-        return dht22Service.getDataFromIndoorSensor().getTemperature();
-    }
-
-    @RequestMapping("/api/outdoor/humidity")
-    public float getOutdoorHumidity() {
-        return dht22Service.getDataFromIndoorSensor().getHumidity();
-    }
-
-    @RequestMapping("/api/outdoor/temperature")
-    public float getOutdoorTemerature() {
-        return dht22Service.getDataFromIndoorSensor().getTemperature();
-    }
-
-    @RequestMapping("/check/ventilation")
+    @RequestMapping(value = "/check/ventilation", method = RequestMethod.GET)
     public String checkVentialtion(final Model model) {
         gateVentilationService.checkVentilationNeeded();
         setModelAttributes(model);
