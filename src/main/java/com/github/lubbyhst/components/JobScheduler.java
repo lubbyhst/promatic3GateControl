@@ -9,7 +9,10 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.github.lubbyhst.enums.GateStatus;
 import com.github.lubbyhst.service.DHT22Service;
+import com.github.lubbyhst.service.gate.GateControlService;
+import com.github.lubbyhst.service.gate.GateStatusService;
 import com.github.lubbyhst.service.gate.GateVentilationService;
 
 @Component
@@ -23,12 +26,27 @@ public class JobScheduler {
     private GateVentilationService gateVentilationService;
 
     @Autowired
+    private GateStatusService gateStatusService;
+
+    @Autowired
+    private GateControlService gateControlService;
+
+    @Autowired
     private DHT22Service dht22Service;
 
     public JobScheduler(
             @Value("${gate.ventilation.job.enabled}")
             final boolean ventilationJobEnabled) {
         this.gateVentilationJobEnabled = ventilationJobEnabled;
+    }
+
+    @Scheduled(cron = "${gate.close.at.night.job.cron.expression}")
+    @Async
+    public void triggerCloseGateAtNight() {
+        logger.info("Trigger close gate from ventilation status @night");
+        if (GateStatus.VENTILATION.equals(gateStatusService.getActualGateStatus())) {
+            gateControlService.closeGate();
+        }
     }
 
     @Scheduled(cron = "${gate.sensor.service.read.data.cron.expression}")
