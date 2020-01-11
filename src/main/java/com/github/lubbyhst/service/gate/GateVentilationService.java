@@ -16,7 +16,8 @@ public class GateVentilationService {
 
     private static final Logger logger = Logger.getLogger(GateVentilationService.class.getName());
 
-    private static final float humidityThreshold = 60;
+    private static final float humidityThreshold = 70;
+    private static final float minimumHumidityDifference = 5;
     private static final int delayAfterVentilationStarted = 30;
 
     private static Instant ventilationStarted;
@@ -41,7 +42,7 @@ public class GateVentilationService {
         }
         final GateStatus gateStatus = gateStatusService.getActualGateStatus();
         logger.info(String.format("Start check if ventilation is needed. Gate status is: %s", gateStatus));
-        if (ventilationStarted != null && Duration.between(Instant.now(), ventilationStarted).toMinutes() <= delayAfterVentilationStarted) {
+        if (ventilationStarted != null && Duration.between(ventilationStarted, Instant.now()).toMinutes() <= delayAfterVentilationStarted) {
             logger.info("Ventilation started less than 30 minutes ago. Skipping ventilation check.");
             return;
         }
@@ -63,6 +64,7 @@ public class GateVentilationService {
             logger.info(
                     String.format("Outdoor dew point (%s)C is greater than indoor dew point (%s)C. Skipping Ventilation.", dewPointOutdoor,
                             dewPointIndoor));
+            closeGateIfNeeded(gateStatus);
             return;
         }
         if (dewPointOutdoor < dewPointIndoor) {
@@ -70,9 +72,9 @@ public class GateVentilationService {
                     String.format("Outdoor dew point (%s)C is lower than indoor dew point (%s)C. Ventilation is possible.", dewPointOutdoor,
                             dewPointIndoor));
 
-            if (indoor.getHumidity() > humidityThreshold) {
-                logger.info(String.format("Indoor humidity (%s percent) is greater than 60 percent. Open gate to ventilation position.",
-                        indoor.getHumidity()));
+            if (checkHumidity(indoor, outdoor)) {
+                logger.info(String.format("Indoor humidity (%s percent) is greater than %s percent. Open gate to ventilation position.",
+                        indoor.getHumidity(), humidityThreshold));
                 if (GateStatus.CLOSED.equals(gateStatus)) {
                     logger.info("Gate is close. Ventilation could be started.");
                     final GateStatus newGateSatus = gateControlService.changeGateToVentilation();
@@ -87,15 +89,33 @@ public class GateVentilationService {
                 logger.info(String.format("Gate is not closed. Skipping Gate Ventilation. Status was %s", gateStatus));
                 return;
             } else {
-                logger.info(String.format("Indoor humidity (%s percent) is lower than 60 percent. Skipping ventilation.",
+                logger.info(String.format("Humidity check was negative. Skipping ventilation.",
                         indoor.getHumidity()));
-                if (GateStatus.VENTILATION.equals(gateStatus)) {
-                    logger.info(String.format("Closing gate because no need of ventilation."));
-                    gateControlService.closeGate();
-                }
             }
         }
+        // branch to execute the negative way eg. close gate if ventilation are in progress
+        closeGateIfNeeded(gateStatus);
+    }
 
+    private void closeGateIfNeeded(final GateStatus gateStatus) {
+        if (GateStatus.VENTILATION.equals(gateStatus)) {
+            logger.info(String.format("Closing gate because no need of ventilation."));
+            gateControlService.closeGate();
+        }
+    }
+
+    private boolean checkHumidity(final DHT22Result indoor, final DHT22Result outdoor) {
+        if (outdoor.getHumidity() - indoor.getHumidity() < minimumHumidityDifference) {
+            logger.info(String.format("Difference between outdoor and indoor humidity is lower than %s percent. Skipping ventilation.",
+                    minimumHumidityDifference));
+            return false;
+        }
+        logger.info(String.format("Checking if indoor humidity (%s) is greater than humidity threshold (%s).", indoor.getHumidity(),
+                humidityThreshold));
+        if (indoor.getHumidity() > humidityThreshold) {
+            return true;
+        }
+        return false;
     }
 
     private double calculateDewPoint(final DHT22Result dht22Result) {

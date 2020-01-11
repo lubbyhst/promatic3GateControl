@@ -58,7 +58,7 @@ public class GateControlService {
         return gateStatusService.getActualGateStatus();
     }
 
-    public GateStatus openGate() {
+    private GateStatus openGate() {
         if (gateStatusService.isGateInteractionInProgress()) {
             return gateStatusService.getActualGateStatus();
         }
@@ -71,7 +71,8 @@ public class GateControlService {
             gateVentilationButton.pressFor(defaultButtonPressTimeout);
             gateStatusService.waitForGateStatus(GateStatus.VENTILATION);
         }
-        gateCloseOpenButton.pressFor(defaultButtonPressTimeout);
+        //deactivated to avoid unwanted door opening
+        //gateCloseOpenButton.pressFor(defaultButtonPressTimeout);
         gateStatusService.waitForGateStatus(GateStatus.OPEN);
         gateStatusService.setGateInteractionInProgress(false);
         return gateStatusService.getActualGateStatus();

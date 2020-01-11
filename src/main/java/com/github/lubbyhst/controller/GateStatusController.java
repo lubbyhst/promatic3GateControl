@@ -29,6 +29,7 @@ public class GateStatusController {
 
     private void setModelAttributes(final Model model) {
         model.addAttribute("dht22Result", dht22Service.getDataFromIndoorSensor());
+        model.addAttribute("outdoorResults", dht22Service.getDataFromOutdoorSensor());
         model.addAttribute("gateStatus",
                 gateStatusService.isGateInteractionInProgress() ? "moving" : this.gateStatusService.getActualGateStatus());
     }
@@ -37,6 +38,26 @@ public class GateStatusController {
     public String main(final Model model){
         setModelAttributes(model);
         return "dashboard";
+    }
+
+    @RequestMapping("/api/indoor/humidity")
+    public float getIndoorHumidity() {
+        return dht22Service.getDataFromIndoorSensor().getHumidity();
+    }
+
+    @RequestMapping("/api/indoor/temperature")
+    public float getIndoorTemerature() {
+        return dht22Service.getDataFromIndoorSensor().getTemperature();
+    }
+
+    @RequestMapping("/api/outdoor/humidity")
+    public float getOutdoorHumidity() {
+        return dht22Service.getDataFromIndoorSensor().getHumidity();
+    }
+
+    @RequestMapping("/api/outdoor/temperature")
+    public float getOutdoorTemerature() {
+        return dht22Service.getDataFromIndoorSensor().getTemperature();
     }
 
     @RequestMapping("/check/ventilation")
@@ -65,7 +86,8 @@ public class GateStatusController {
     @RequestMapping(value = "/gate/open", method = RequestMethod.GET)
     public String open(final Model model) {
         gateVentilationService.reset();
-        gateControlService.openGate();
+        //while in test phase. For security deactivated
+        //gateControlService.openGate();
         setModelAttributes(model);
         return "dashboard";
     }

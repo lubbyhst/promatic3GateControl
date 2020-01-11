@@ -19,18 +19,32 @@ public class DHT22Service {
     @Autowired
     private GatePinConfiguration gatePinConfiguration;
 
+    private DHT22Result indoorSensorData;
+    private DHT22Result outdoorSensorData;
+
     public DHT22Result getDataFromOutdoorSensor(){
-        return readDataFromSensor(gatePinConfiguration.getHumidityOutdoorPinReading());
+        if (outdoorSensorData == null) {
+            readSensorData();
+        }
+        return outdoorSensorData;
     }
 
     public DHT22Result getDataFromIndoorSensor(){
-        return readDataFromSensor(gatePinConfiguration.getHumidityIndoorPinReading());
+        if (indoorSensorData == null) {
+            readSensorData();
+        }
+        return indoorSensorData;
     }
 
     private DHT22Result readDataFromSensor(final int readingPin) {
         return new FluentWait<>(new DHT22()).pollingEvery(Duration.ofMillis(sensorPollingMillis))
                 .withTimeout(Duration.ofSeconds(sensorReadTimeoutSec))
                 .until(dht22 -> dht22.read(readingPin));
+    }
+
+    public void readSensorData() {
+        indoorSensorData = readDataFromSensor(gatePinConfiguration.getHumidityIndoorPinReading());
+        outdoorSensorData = readDataFromSensor(gatePinConfiguration.getHumidityOutdoorPinReading());
     }
 
 }
