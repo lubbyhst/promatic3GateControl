@@ -91,6 +91,14 @@ public class DHT22{
                 if ((dht22_dat[2] & 0x80) != 0) {
                     temperature = -temperature;
                 }
+            if (humidity > 100) {
+                logger.warning("Data reading failed.");
+                return null;
+            }
+            if (temperature > 125) {
+                logger.warning("Data reading failed.");
+                return null;
+            }
                 return new DHT22Result(humidity,temperature);
         }
         logger.warning("Data reading failed.");
