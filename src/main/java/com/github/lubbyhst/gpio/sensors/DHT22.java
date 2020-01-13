@@ -11,6 +11,8 @@ import com.pi4j.wiringpi.Gpio;
 public class DHT22{
     private static final Logger logger = Logger.getLogger(DHT22.class.getName());
     private static final int maxTimings = 85;
+    private static final int maxHumidityDifference = 4;
+    private static final int maxTemperatureDifference = 3;
     private final int[] dht22_dat = {0, 0, 0, 0, 0};
     private final boolean isSimulated = PlatformManager.getPlatform().equals(Platform.SIMULATED);
 
@@ -67,7 +69,7 @@ public class DHT22{
 
     }
 
-    public DHT22Result read(final int pinNumber) {
+    public DHT22Result read(final int pinNumber, final DHT22Result lastResult) {
         if(isSimulated){
             logger.fine("Simulated ENV. Returning random values.");
             return new DHT22Result(new Random(System.currentTimeMillis()).nextFloat()*100,new Random(System.currentTimeMillis()+100).nextFloat()*100);
@@ -91,12 +93,15 @@ public class DHT22{
                 if ((dht22_dat[2] & 0x80) != 0) {
                     temperature = -temperature;
                 }
-            if (humidity > 100) {
-                logger.warning("Data reading failed.");
+            if (humidity > 100 || (lastResult != null && Math.abs(lastResult.getHumidity() - humidity) > maxHumidityDifference)) {
+                logger.warning(
+                        String.format("Data reading failed. New humidity was %s last humidity was %s", humidity, lastResult.getHumidity()));
                 return null;
             }
-            if (temperature > 125) {
-                logger.warning("Data reading failed.");
+            if (temperature > 125 || (lastResult != null
+                    && Math.abs(lastResult.getTemperature() - temperature) > maxTemperatureDifference)) {
+                logger.warning(String.format("Data reading failed. New temperature was %s last temperature was %s", temperature,
+                        lastResult.getTemperature()));
                 return null;
             }
                 return new DHT22Result(humidity,temperature);
