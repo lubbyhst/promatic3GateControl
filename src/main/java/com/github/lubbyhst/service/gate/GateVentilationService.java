@@ -61,14 +61,14 @@ public class GateVentilationService {
             return;
         }
         final DHT22Result indoor = dht22Service.getDataFromIndoorSensor();
-        logger.info(
-                String.format("Data from indoor sensor is humidity %s and temperature %s", indoor.getHumidity(), indoor.getTemperature()));
+        logger.info(String.format("Data from indoor sensor is humidity %s and temperature %s", indoor.getHumidityRelative(),
+                indoor.getTemperature()));
         final DHT22Result outdoor = dht22Service.getDataFromOutdoorSensor();
-        logger.info(String.format("Data from outdoor sensor is humidity %s and temperature %s", outdoor.getHumidity(),
+        logger.info(String.format("Data from outdoor sensor is humidity %s and temperature %s", outdoor.getHumidityRelative(),
                 outdoor.getTemperature()));
-        final double dewPointIndoor = calculateDewPoint(indoor);
+        final double dewPointIndoor = indoor.getDewPoint();
         logger.info(String.format("dew point indoor is %s C", dewPointIndoor));
-        final double dewPointOutdoor = calculateDewPoint(outdoor);
+        final double dewPointOutdoor = outdoor.getDewPoint();
         logger.info(String.format("dew point outdoor is %s C", dewPointOutdoor));
         if (dewPointOutdoor > dewPointIndoor) {
             logger.info(
@@ -97,8 +97,7 @@ public class GateVentilationService {
                 logger.info(String.format("Gate is not closed. Skipping Gate Ventilation. Status was %s", gateStatus));
                 return;
             } else {
-                logger.info(String.format("Humidity check was negative. Skipping ventilation.",
-                        indoor.getHumidity()));
+                logger.info(String.format("Humidity check was negative. Skipping ventilation.", indoor.getHumidityRelative()));
             }
         }
         // branch to execute the negative way eg. close gate if ventilation are in progress
@@ -114,15 +113,15 @@ public class GateVentilationService {
     }
 
     private boolean checkHumidity(final DHT22Result indoor, final DHT22Result outdoor) {
-        logger.info(String.format("Checking if indoor humidity (%s) is greater than humidity threshold (%s).", indoor.getHumidity(),
+        logger.info(String.format("Checking if indoor humidity (%s) is greater than humidity threshold (%s).", indoor.getHumidityRelative(),
                 humidityThreshold));
-        if (indoor.getHumidity() > humidityThreshold) {
-            logger.info(
-                    String.format("Indoor humidity (%s percent) is greater than %s percent. Ventilation possible.", indoor.getHumidity(),
+        if (indoor.getHumidityRelative() > humidityThreshold) {
+            logger.info(String.format("Indoor humidity (%s percent) is greater than %s percent. Ventilation possible.",
+                    indoor.getHumidityRelative(),
                             humidityThreshold));
-            final double absoluteOutdoorHumidity = calculateAbsoluteHumidity(outdoor);
+            final double absoluteOutdoorHumidity = outdoor.getHumidityAbsolute();
             logger.info(String.format("Calculated absolute outdoor humidity of %s g/m3", absoluteOutdoorHumidity));
-            final double absoluteIndoorHumidity = calculateAbsoluteHumidity(indoor);
+            final double absoluteIndoorHumidity = indoor.getHumidityAbsolute();
             logger.info(String.format("Calculated absolute indoor humidity of %s g/m3", absoluteIndoorHumidity));
             if ((absoluteOutdoorHumidity < absoluteIndoorHumidity)
                     && (absoluteIndoorHumidity - absoluteOutdoorHumidity) > minimumHumidityDifference) {
@@ -132,19 +131,5 @@ public class GateVentilationService {
             logger.info("Outdoor humidity is greater than indoor humidity. Ventilation skipped.");
         }
         return false;
-    }
-
-    private double calculateAbsoluteHumidity(final DHT22Result dht22Result) {
-        final double temperature = dht22Result.getTemperature();
-        final double humidity = dht22Result.getHumidity();
-        return ((0.000002 * Math.pow(temperature, 4.0)) + (0.0002 * Math.pow(temperature, 3.0)) + (0.0095 * Math.pow(temperature, 2.0)) + (
-                0.337 * temperature) + 4.9034) * humidity;
-    }
-
-    private double calculateDewPoint(final DHT22Result dht22Result) {
-        final float temperature = dht22Result.getTemperature();
-        final float humidity = dht22Result.getHumidity();
-        return 243.12 * ((17.62 * temperature) / (243.12 + temperature) + Math.log(humidity / 100)) / (
-                (17.62 * 243.12) / (243.12 + temperature) - Math.log(humidity / 100));
     }
 }

@@ -25,11 +25,22 @@
                 <div class="w3-container w3-red w3-padding-16">
                     <div class="w3-left"><i class="fa w3-xxxlarge"></i></div>
                     <div class="w3-right">
-                        <h3 th:text="'Indoor '+${dht22Result.humidity} + '%'"></h3>
-                        <h3 th:text="'Outdoor '+${outdoorResults.humidity} + '%'"></h3>
+                        <h3 th:text="'Indoor '+${dht22Result.humidityRelative} + '%'"></h3>
+                        <h3 th:text="'Outdoor '+${outdoorResults.humidityRelative} + '%'"></h3>
                     </div>
                     <div class="w3-clear"></div>
-                    <h4>Humidity</h4>
+                    <h4>Humidity relative</h4>
+                </div>
+            </div>
+            <div class="w3-quarter">
+                <div class="w3-container w3-deep-orange w3-padding-16">
+                    <div class="w3-left"><i class="fa w3-xxxlarge"></i></div>
+                    <div class="w3-right">
+                        <h3 th:text="'Indoor '+${dht22Result.humidityAbsolute} + 'mg/m3'"></h3>
+                        <h3 th:text="'Outdoor '+${outdoorResults.humidityAbsolute} + 'mg/m3'"></h3>
+                    </div>
+                    <div class="w3-clear"></div>
+                    <h4>Humidity absolute</h4>
                 </div>
             </div>
             <div class="w3-quarter">

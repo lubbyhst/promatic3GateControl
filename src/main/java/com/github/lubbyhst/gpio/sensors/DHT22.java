@@ -93,9 +93,9 @@ public class DHT22{
                 if ((dht22_dat[2] & 0x80) != 0) {
                     temperature = -temperature;
                 }
-            if (humidity > 100 || (lastResult != null && Math.abs(lastResult.getHumidity() - humidity) > maxHumidityDifference)) {
-                logger.warning(
-                        String.format("Data reading failed. New humidity was %s last humidity was %s", humidity, lastResult.getHumidity()));
+            if (humidity > 100 || (lastResult != null && Math.abs(lastResult.getHumidityRelative() - humidity) > maxHumidityDifference)) {
+                logger.warning(String.format("Data reading failed. New humidity was %s last humidity was %s", humidity,
+                        lastResult.getHumidityRelative()));
                 return null;
             }
             if (temperature > 125 || (lastResult != null

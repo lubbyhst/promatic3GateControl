@@ -29,10 +29,12 @@ public class ApiController {
     public ObjectNode getStatus() {
         final ObjectMapper mapper = new ObjectMapper();
         final ObjectNode indoorNode = mapper.createObjectNode();
-        indoorNode.put("humidity", dht22Service.getDataFromIndoorSensor().getHumidity());
+        indoorNode.put("humidityRelative", dht22Service.getDataFromIndoorSensor().getHumidityRelative());
+        indoorNode.put("humidityAbsolute", dht22Service.getDataFromIndoorSensor().getHumidityAbsolute());
         indoorNode.put("temperature", dht22Service.getDataFromIndoorSensor().getTemperature());
         final ObjectNode outdoorNode = mapper.createObjectNode();
-        outdoorNode.put("humidity", dht22Service.getDataFromOutdoorSensor().getHumidity());
+        outdoorNode.put("humidityRelative", dht22Service.getDataFromOutdoorSensor().getHumidityRelative());
+        outdoorNode.put("humidityAbsolute", dht22Service.getDataFromOutdoorSensor().getHumidityAbsolute());
         outdoorNode.put("temperature", dht22Service.getDataFromOutdoorSensor().getTemperature());
         final ObjectNode gateNode = mapper.createObjectNode();
         gateNode.put("status", gateStatusService.getActualGateStatus().name());
@@ -44,9 +46,8 @@ public class ApiController {
     }
 
     @RequestMapping(value = "/api/indoor/humidity", method = RequestMethod.GET)
-
     public String getIndoorHumidity() {
-        return String.valueOf(dht22Service.getDataFromIndoorSensor().getHumidity());
+        return String.valueOf(dht22Service.getDataFromIndoorSensor().getHumidityRelative());
     }
 
     @RequestMapping(value = "/api/indoor/temperature", method = RequestMethod.GET)
@@ -56,7 +57,7 @@ public class ApiController {
 
     @RequestMapping(value = "/api/outdoor/humidity", method = RequestMethod.GET)
     public String getOutdoorHumidity() {
-        return String.valueOf(dht22Service.getDataFromIndoorSensor().getHumidity());
+        return String.valueOf(dht22Service.getDataFromIndoorSensor().getHumidityRelative());
     }
 
     @RequestMapping(value = "/api/outdoor/temperature", method = RequestMethod.GET)
