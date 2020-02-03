@@ -106,7 +106,7 @@ public class DHT22{
             }
                 return new DHT22Result(humidity,temperature);
         }
-        logger.warning("Data reading failed.");
+        logger.fine("Data reading failed.");
         return null;
     }
 

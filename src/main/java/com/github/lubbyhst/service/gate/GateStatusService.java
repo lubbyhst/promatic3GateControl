@@ -1,7 +1,6 @@
 package com.github.lubbyhst.service.gate;
 
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -55,19 +54,6 @@ public class GateStatusService {
     public boolean isGateInteractionInProgress() {
         return gateInteractionInProgress;//no moving sensor installed
         //return gateMovingPin.isLow();
-    }
-
-    public void waitForGate(){
-        int counter = 0;
-        while (isGateInteractionInProgress() && counter <= 60) {
-            try {
-                logger.info("Gate is moving. Waiting until gate stops.");
-                TimeUnit.SECONDS.sleep(1);
-            } catch (final InterruptedException e) {
-                logger.severe("Interrupt exception while waiting for gate. " + e.getMessage());
-            }
-            counter++;
-        }
     }
 
     public GateStatus waitForGateStatus(final GateStatus gateStatusToWaitFor){

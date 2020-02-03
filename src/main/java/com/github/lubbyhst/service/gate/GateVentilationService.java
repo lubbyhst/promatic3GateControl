@@ -16,10 +16,12 @@ public class GateVentilationService {
 
     private static final Logger logger = Logger.getLogger(GateVentilationService.class.getName());
 
-    private static final float humidityThreshold = 60;
-    private static final float minimumHumidityDifference = 3;
+    private static final float humidityIndoorThreshold = 60;
+    private static final float humidityOutdoorThreshold = 90;
+    private static final float minimumHumidityDifference = 80;
     private static final int delayInMinutesAfterVentilationStarted = 30;
     private static final int delayInMinutesAfterVentilationStopped = 120;
+    private static final int maxVentilationTimeInMinutes = 60;
 
     private static Instant ventilationStarted;
     private static Instant ventilationStopped;
@@ -54,6 +56,12 @@ public class GateVentilationService {
                 && Duration.between(ventilationStopped, Instant.now()).toMinutes() <= delayInMinutesAfterVentilationStopped) {
             logger.info(
                     "Ventilation stopped less than " + delayInMinutesAfterVentilationStopped + " minutes ago. Skipping ventilation check.");
+            return;
+        }
+        if (GateStatus.VENTILATION.equals(gateStatus) && ventilationStarted != null
+                && Duration.between(ventilationStarted, Instant.now()).toMinutes() > maxVentilationTimeInMinutes) {
+            logger.info("Reached max ventilation time. Closing gate.");
+            closeGateIfNeeded(gateStatus);
             return;
         }
         if (GateStatus.OPEN.equals(gateStatus)) {
@@ -114,11 +122,11 @@ public class GateVentilationService {
 
     private boolean checkHumidity(final DHT22Result indoor, final DHT22Result outdoor) {
         logger.info(String.format("Checking if indoor humidity (%s) is greater than humidity threshold (%s).", indoor.getHumidityRelative(),
-                humidityThreshold));
-        if (indoor.getHumidityRelative() > humidityThreshold) {
-            logger.info(String.format("Indoor humidity (%s percent) is greater than %s percent. Ventilation possible.",
-                    indoor.getHumidityRelative(),
-                            humidityThreshold));
+                humidityIndoorThreshold));
+        if (indoor.getHumidityRelative() > humidityIndoorThreshold && outdoor.getHumidityRelative() < humidityOutdoorThreshold) {
+            logger.info(String.format(
+                    "Indoor humidity (%s percent) is greater than %s percent and Outdoor humidity is lower than (%s percent). Ventilation possible.",
+                    indoor.getHumidityRelative(), humidityIndoorThreshold, humidityOutdoorThreshold));
             final double absoluteOutdoorHumidity = outdoor.getHumidityAbsolute();
             logger.info(String.format("Calculated absolute outdoor humidity of %s g/m3", absoluteOutdoorHumidity));
             final double absoluteIndoorHumidity = indoor.getHumidityAbsolute();

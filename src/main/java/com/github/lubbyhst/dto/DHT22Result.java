@@ -1,5 +1,8 @@
 package com.github.lubbyhst.dto;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class DHT22Result {
 
     private final float humidityRelative;
@@ -15,7 +18,7 @@ public class DHT22Result {
     }
 
     public double getHumidityAbsolute() {
-        return calculateAbsoluteHumidity();
+        return new BigDecimal(calculateAbsoluteHumidity()).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 
     public double getDewPoint() {

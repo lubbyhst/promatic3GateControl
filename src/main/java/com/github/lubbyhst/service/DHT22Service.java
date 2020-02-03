@@ -23,14 +23,14 @@ public class DHT22Service {
     private DHT22Result indoorSensorData;
     private DHT22Result outdoorSensorData;
 
-    public DHT22Result getDataFromOutdoorSensor(){
+    public synchronized DHT22Result getDataFromOutdoorSensor() {
         if (outdoorSensorData == null) {
             readSensorData();
         }
         return outdoorSensorData;
     }
 
-    public DHT22Result getDataFromIndoorSensor(){
+    public synchronized DHT22Result getDataFromIndoorSensor() {
         if (indoorSensorData == null) {
             readSensorData();
         }
@@ -46,13 +46,13 @@ public class DHT22Service {
         try {
             indoorSensorData = readDataFromSensor(gatePinConfiguration.getHumidityIndoorPinReading(), this.indoorSensorData);
         } catch (final TimeoutException ex) {
-            //reset old data in case sensor reading was not correct
+            //reset old data, in case sensor reading was not correct
             indoorSensorData = null;
         }
         try {
             outdoorSensorData = readDataFromSensor(gatePinConfiguration.getHumidityOutdoorPinReading(), this.outdoorSensorData);
         } catch (final TimeoutException ex) {
-            //reset old data in case sensor reading was not correct
+            //reset old data, in case sensor reading was not correct
             outdoorSensorData = null;
         }
     }

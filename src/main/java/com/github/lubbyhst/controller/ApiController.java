@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.github.lubbyhst.enums.GateStatus;
 import com.github.lubbyhst.service.DHT22Service;
 import com.github.lubbyhst.service.gate.GateStatusService;
 
@@ -36,8 +37,11 @@ public class ApiController {
         outdoorNode.put("humidityRelative", dht22Service.getDataFromOutdoorSensor().getHumidityRelative());
         outdoorNode.put("humidityAbsolute", dht22Service.getDataFromOutdoorSensor().getHumidityAbsolute());
         outdoorNode.put("temperature", dht22Service.getDataFromOutdoorSensor().getTemperature());
+        final GateStatus gateStatus = gateStatusService.getActualGateStatus();
         final ObjectNode gateNode = mapper.createObjectNode();
-        gateNode.put("status", gateStatusService.getActualGateStatus().name());
+        gateNode.put("status", gateStatus.name());
+        gateNode.put("statusLabel", gateStatus.getLabel());
+        gateNode.put("numericStatus", gateStatus.getNumericStatus());
         final ObjectNode rootNode = mapper.createObjectNode();
         rootNode.set("gate", gateNode);
         rootNode.set("indoor", indoorNode);
