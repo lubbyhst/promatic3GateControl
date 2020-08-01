@@ -7,12 +7,14 @@
     <groupId>com.github.lubbyhst</groupId>
     <artifactId>promatic3Control</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <spring.version>2.2.2.RELEASE</spring.version>
         <!-- DEFAULT RASPBERRY PI TEST PROPERTIES -->
         <pi.host>192.168.0.83</pi.host>
         <pi.port>22</pi.port>
@@ -21,159 +23,108 @@
         <pi.deployDirectory>/opt/promatic3Control/</pi.deployDirectory>
     </properties>
 
+    <modules>
+        <module>api-service</module>
+        <module>web-ui-service</module>
+    </modules>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>2.2.2.RELEASE</version>
+                <version>${spring.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.seleniumhq.selenium</groupId>
+                <artifactId>selenium-support</artifactId>
+                <version>3.141.59</version>
+            </dependency>
+            <dependency>
+                <groupId>com.pi4j</groupId>
+                <artifactId>pi4j-core</artifactId>
+                <version>1.2</version>
+            </dependency>
+            <!-- testing -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-junit4</artifactId>
+                <version>2.0.2</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-api-mockito2</artifactId>
+                <version>2.0.2</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>2.23.4</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
+    <profiles>
+        <profile>
+            <id>deploy</id>
+            <build>
+                <plugins>
+                    <!--This plugin will Transfer the executable JAR file to the Pi and runs it -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.8</version>
+                        <executions>
+                            <execution>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <tasks>
+                                        <!-- ensure the target directory exists on the Raspberry Pi -->
+                                        <!--                                <sshexec host="${pi.host}" port="${pi.port}" username="${pi.user}" password="${pi.password}"-->
+                                        <!--                                         trust="true" failonerror="false" verbose="true"-->
+                                        <!--                                         command="mkdir &#45;&#45;parents ${pi.deployDirectory}"/>-->
 
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>bootstrap</artifactId>
-            <version>4.0.0-2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>webjars-locator</artifactId>
-            <version>0.30</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.junit.vintage</groupId>
-                    <artifactId>junit-vintage-engine</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-support</artifactId>
-            <version>3.141.59</version>
-        </dependency>
-        <dependency>
-            <groupId>com.pi4j</groupId>
-            <artifactId>pi4j-core</artifactId>
-            <version>1.2</version>
-        </dependency>
-        <!-- testing -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <version>2.0.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito2</artifactId>
-            <version>2.0.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>2.23.4</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+                                        <!-- copy the JAR file to the Raspberry Pi -->
+                                        <scp
+                                                file="${project.basedir}/api-service/target/promatic3Control-${project.version}.jar"
+                                                todir="${pi.user}:${pi.password}@${pi.host}:${pi.deployDirectory}"
+                                                port="${pi.port}" trust="true" verbose="true" failonerror="true">
+                                        </scp>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.2.2.RELEASE</version>
-                <configuration>
-                    <mainClass>com.github.lubbyhst.Application</mainClass>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!--This plugin will Transfer the executable JAR file to the Pi and runs it -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
-                <executions>
-                    <execution>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <!-- ensure the target directory exists on the Raspberry Pi -->
-<!--                                <sshexec host="${pi.host}" port="${pi.port}" username="${pi.user}" password="${pi.password}"-->
-<!--                                         trust="true" failonerror="false" verbose="true"-->
-<!--                                         command="mkdir &#45;&#45;parents ${pi.deployDirectory}"/>-->
-
-                                <!-- copy the JAR file to the Raspberry Pi -->
-                                <scp
-                                        file="${project.build.directory}/promatic3Control-${project.version}.jar"
-                                        todir="${pi.user}:${pi.password}@${pi.host}:${pi.deployDirectory}"
-                                        port="${pi.port}" trust="true" verbose="true" failonerror="true">
-                                </scp>
-
-                                <!-- run the JAR file on the Raspberry Pi -->
-<!--                                <sshexec host="${pi.host}" port="${pi.port}" username="${pi.user}"-->
-<!--                                         password="${pi.password}" trust="true" failonerror="false"-->
-<!--                                         verbose="true"-->
-<!--                                         command="java -jar ${pi.deployDirectory}/pi4j-example-${project.version}.jar -Dagentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5000"/>-->
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.ant</groupId>
-                        <artifactId>ant-jsch</artifactId>
-                        <version>1.9.6</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-        </plugins>
-    </build>
+                                        <!-- run the JAR file on the Raspberry Pi -->
+                                        <!--                                <sshexec host="${pi.host}" port="${pi.port}" username="${pi.user}"-->
+                                        <!--                                         password="${pi.password}" trust="true" failonerror="false"-->
+                                        <!--                                         verbose="true"-->
+                                        <!--                                         command="java -jar ${pi.deployDirectory}/pi4j-example-${project.version}.jar -Dagentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5000"/>-->
+                                    </tasks>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.apache.ant</groupId>
+                                <artifactId>ant-jsch</artifactId>
+                                <version>1.9.6</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
