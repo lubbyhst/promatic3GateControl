@@ -2,13 +2,16 @@ package com.github.lubbyhst.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.github.lubbyhst.dto.BME280Result;
 import com.github.lubbyhst.enums.GateStatus;
+import com.github.lubbyhst.service.BME280Service;
 import com.github.lubbyhst.service.DHT22Service;
 import com.github.lubbyhst.service.gate.GateStatusService;
 
@@ -20,6 +23,9 @@ public class ApiController {
 
     @Autowired
     private DHT22Service dht22Service;
+
+    @Autowired
+    private BME280Service bme280Service;
 
     @RequestMapping(value = "/api", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
     public String defaultReturn() {
@@ -67,5 +73,10 @@ public class ApiController {
     @RequestMapping(value = "/api/outdoor/temperature", method = RequestMethod.GET)
     public String getOutdoorTemerature() {
         return String.valueOf(dht22Service.getDataFromIndoorSensor().getTemperature());
+    }
+
+    @RequestMapping(value = "/api/outdoor/bme280", method = RequestMethod.GET)
+    public ResponseEntity<BME280Result> getBME280Result() {
+        return ResponseEntity.ok(bme280Service.getDataFromOutdoorSensor());
     }
 }
