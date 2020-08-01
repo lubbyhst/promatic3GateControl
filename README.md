@@ -5,6 +5,19 @@ Also the application contains a Web Ui to trigger events an read sensor data.
 
 The main task of the application is to open the gate for ventilation, if the humidity is too high.
 
+### Requirements
+
+- Raspbian OS
+- Open JDK 8 ```sudo apt install openjdk-8-jdk```
+- wiringPi ```sudo apt install wiringpi```
+- enabled i2c
+
+### How to enable i2c
+
+1. ```sudo echo "i2c-bcm2708" >> /etc/modules```
+2. ```sudo echo "i2c-dev" >> /etc/modules```
+3. ```sudo echo "dtparam=i2c1=on" >> /boot/config.txt```
+4. ```sudo echo "dtparam=i2c_arm=on" >> /boot/config.txt```
 
 ### Configuration
 The Pin configuration could be adjusted via the application.properties under src/main/resouces
