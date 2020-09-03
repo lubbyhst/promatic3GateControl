@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.logging.Logger;
 
+import com.github.lubbyhst.service.BME280Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -44,6 +45,9 @@ public class JobScheduler {
     private DHT22Service dht22Service;
 
     @Autowired
+    private BME280Service bme280Service;
+
+    @Autowired
     private MailService mailService;
 
     public JobScheduler(
@@ -73,6 +77,9 @@ public class JobScheduler {
         logger.fine("Reading data from DHT22 sensors.");
         dht22Service.readSensorData();
         logger.fine("Finished reading data from DHT22 sensors.");
+        logger.fine("Reading data from BME280 sensors.");
+        bme280Service.readSensorData();
+        logger.fine("Finished reading data from BME280 sensors.");
     }
 
     @Scheduled(cron = "${gate.ventilation.job.cron.expression}")
