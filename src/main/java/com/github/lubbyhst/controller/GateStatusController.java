@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.github.lubbyhst.service.BME280Service;
 import com.github.lubbyhst.service.DHT22Service;
 import com.github.lubbyhst.service.gate.GateControlService;
 import com.github.lubbyhst.service.gate.GateStatusService;
@@ -26,15 +27,18 @@ public class GateStatusController {
     @Autowired
     private DHT22Service dht22Service;
 
+    @Autowired
+    private BME280Service bme280Service;
+
     private void setModelAttributes(final Model model) {
         model.addAttribute("dht22Result", dht22Service.getDataFromIndoorSensor());
-        model.addAttribute("outdoorResults", dht22Service.getDataFromOutdoorSensor());
+        model.addAttribute("outdoorResults", bme280Service.getDataFromOutdoorSensor());
         model.addAttribute("gateStatus",
                 gateStatusService.isGateInteractionInProgress() ? "moving" : this.gateStatusService.getActualGateStatus());
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public String main(final Model model){
+    public String main(final Model model) {
         setModelAttributes(model);
         return "dashboard";
     }

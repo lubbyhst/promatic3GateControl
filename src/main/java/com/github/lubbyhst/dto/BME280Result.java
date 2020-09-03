@@ -10,8 +10,8 @@ public class BME280Result {
     private final double pressure;
 
     public BME280Result(final double humidityRelative, final double temperature, final double pressure) {
-        this.humidityRelative = humidityRelative;
-        this.temperature = temperature;
+        this.humidityRelative = new BigDecimal(humidityRelative).setScale(1, RoundingMode.HALF_UP).doubleValue();
+        this.temperature = new BigDecimal(temperature).setScale(1, RoundingMode.HALF_UP).doubleValue();
         this.pressure = pressure;
     }
 

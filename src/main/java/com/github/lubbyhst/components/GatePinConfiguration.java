@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 public class GatePinConfiguration {
 
     private final int humidityIndoorPinReading;
-    private final int humidityOutdoorPinReading;
 
     private final int statusPinClose;
     private final int statusPinOpen;
@@ -20,8 +19,6 @@ public class GatePinConfiguration {
     public GatePinConfiguration(
             @Value("${gpio.gate.sensor.humidity.indoor.pin.reading}")
             final int humidityIndoorPinReading,
-            @Value("${gpio.gate.sensor.humidity.outdoor.pin.reading}")
-            final int humidityOutdoorPinReading,
             @Value("${gpio.gate.sensor.status.pin.close}")
             final int statusPinClose,
             @Value("${gpio.gate.sensor.status.pin.open}")
@@ -35,7 +32,6 @@ public class GatePinConfiguration {
             @Value("${gpio.gate.switch.pin.ventilation}")
             final int switchPinVentilation) {
         this.humidityIndoorPinReading = humidityIndoorPinReading;
-        this.humidityOutdoorPinReading = humidityOutdoorPinReading;
         this.statusPinClose = statusPinClose;
         this.statusPinOpen = statusPinOpen;
         this.statusPinVentilation = statusPinVentilation;
@@ -48,12 +44,7 @@ public class GatePinConfiguration {
     public int getHumidityIndoorPinReading() {
         return humidityIndoorPinReading;
     }
-
-
-    public int getHumidityOutdoorPinReading() {
-        return humidityOutdoorPinReading;
-    }
-
+    
     public int getStatusPinClose() {
         return statusPinClose;
     }

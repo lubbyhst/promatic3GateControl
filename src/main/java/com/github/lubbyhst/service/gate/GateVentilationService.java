@@ -7,8 +7,10 @@ import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.github.lubbyhst.dto.BME280Result;
 import com.github.lubbyhst.dto.DHT22Result;
 import com.github.lubbyhst.enums.GateStatus;
+import com.github.lubbyhst.service.BME280Service;
 import com.github.lubbyhst.service.DHT22Service;
 
 @Service
@@ -28,6 +30,9 @@ public class GateVentilationService {
 
     @Autowired
     private DHT22Service dht22Service;
+
+    @Autowired
+    private BME280Service bme280Service;
 
     @Autowired
     private GateControlService gateControlService;
@@ -71,7 +76,7 @@ public class GateVentilationService {
         final DHT22Result indoor = dht22Service.getDataFromIndoorSensor();
         logger.info(String.format("Data from indoor sensor is humidity %s and temperature %s", indoor.getHumidityRelative(),
                 indoor.getTemperature()));
-        final DHT22Result outdoor = dht22Service.getDataFromOutdoorSensor();
+        final BME280Result outdoor = bme280Service.getDataFromOutdoorSensor();
         logger.info(String.format("Data from outdoor sensor is humidity %s and temperature %s", outdoor.getHumidityRelative(),
                 outdoor.getTemperature()));
         final double dewPointIndoor = indoor.getDewPoint();
@@ -120,7 +125,7 @@ public class GateVentilationService {
         }
     }
 
-    private boolean checkHumidity(final DHT22Result indoor, final DHT22Result outdoor) {
+    private boolean checkHumidity(final DHT22Result indoor, final BME280Result outdoor) {
         logger.info(String.format("Checking if indoor humidity (%s) is greater than humidity threshold (%s).", indoor.getHumidityRelative(),
                 humidityIndoorThreshold));
         if (indoor.getHumidityRelative() > humidityIndoorThreshold && outdoor.getHumidityRelative() < humidityOutdoorThreshold) {
