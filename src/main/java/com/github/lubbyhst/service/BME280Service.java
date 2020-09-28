@@ -2,6 +2,8 @@ package com.github.lubbyhst.service;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.support.ui.FluentWait;
@@ -13,9 +15,9 @@ import com.pi4j.io.i2c.I2CFactory;
 
 @Service
 public class BME280Service {
-
-    private static final int sensorReadTimeoutSec = 30;
-    private static final int sensorPollingMillis = 500;
+    private static final Logger logger = Logger.getLogger(BME280Service.class.getName());
+    private static final int sensorReadTimeoutSec = 60;
+    private static final int sensorPollingMillis = 1500;
 
     private BME280Result outdoorSensorData;
 
@@ -31,10 +33,9 @@ public class BME280Service {
                 .withTimeout(Duration.ofSeconds(sensorReadTimeoutSec)).until(bme280 -> {
                     try {
                         return bme280.pollBME280();
-                    } catch (final IOException e) {
-                        e.printStackTrace();
-                    } catch (final I2CFactory.UnsupportedBusNumberException e) {
-                        e.printStackTrace();
+                    } catch (final IOException | I2CFactory.UnsupportedBusNumberException e) {
+                        logger.log(Level.WARNING, "Data reading failed." + e.getMessage());
+                        logger.log(Level.FINE, e.getMessage(), e);
                     }
                     return null;
                 });
