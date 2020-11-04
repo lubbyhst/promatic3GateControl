@@ -172,11 +172,10 @@ public class BME280 {
         }
 
         // Output data to screen
-        logger.fine(String.format("Temperature in Celsius : %.2f C %n", cTemp));
-        logger.fine(String.format("Temperature in Fahrenheit : %.2f F %n", fTemp));
-        logger.fine(String.format("Pressure : %.2f hPa %n", pressure));
-        logger.fine(String.format("Relative Humidity : %.2f %% RH %n", humidity));
-        
+        System.out.printf("Temperature in Celsius : %.2f C %n", cTemp);
+        System.out.printf("Temperature in Fahrenheit : %.2f F %n", fTemp);
+        System.out.printf("Pressure : %.2f hPa %n", pressure);
+        System.out.printf("Relative Humidity : %.2f %% RH %n", humidity);
         return new BME280Result(humidity, cTemp, pressure);
     }
 }

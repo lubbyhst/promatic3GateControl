@@ -40,9 +40,9 @@ public class ApiController {
         indoorNode.put("humidityAbsolute", dht22Service.getDataFromIndoorSensor().getHumidityAbsolute());
         indoorNode.put("temperature", dht22Service.getDataFromIndoorSensor().getTemperature());
         final ObjectNode outdoorNode = mapper.createObjectNode();
-        outdoorNode.put("humidityRelative", bme280Service.getDataFromOutdoorSensor().getHumidityRelative());
-        outdoorNode.put("humidityAbsolute", bme280Service.getDataFromOutdoorSensor().getHumidityAbsolute());
-        outdoorNode.put("temperature", bme280Service.getDataFromOutdoorSensor().getTemperature());
+        outdoorNode.put("humidityRelative", dht22Service.getDataFromOutdoorSensor().getHumidityRelative());
+        outdoorNode.put("humidityAbsolute", dht22Service.getDataFromOutdoorSensor().getHumidityAbsolute());
+        outdoorNode.put("temperature", dht22Service.getDataFromOutdoorSensor().getTemperature());
         final GateStatus gateStatus = gateStatusService.getActualGateStatus();
         final ObjectNode gateNode = mapper.createObjectNode();
         gateNode.put("status", gateStatus.name());
