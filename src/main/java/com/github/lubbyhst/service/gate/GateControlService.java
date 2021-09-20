@@ -11,7 +11,7 @@ import com.github.lubbyhst.service.GpioService;
 @Service
 public class GateControlService {
 
-    private static final int defaultButtonPressTimeout = 250;
+    private static final int defaultButtonPressTimeout = 500;
     private final GateStatusService gateStatusService;
     private final DigitalOutput gateVentilationButton;
     private final DigitalOutput gateCloseOpenButton;
@@ -58,7 +58,7 @@ public class GateControlService {
         return gateStatusService.getActualGateStatus();
     }
 
-    private GateStatus openGate() {
+    public GateStatus openGate() {
         if (gateStatusService.isGateInteractionInProgress()) {
             return gateStatusService.getActualGateStatus();
         }
@@ -67,12 +67,12 @@ public class GateControlService {
             gateStatusService.setGateInteractionInProgress(false);
             return gateStatusService.getActualGateStatus();
         }
-        if(!GateStatus.VENTILATION.equals(gateStatusService.getActualGateStatus())){
+        if (!GateStatus.VENTILATION.equals(gateStatusService.getActualGateStatus())) {
             gateVentilationButton.pressFor(defaultButtonPressTimeout);
             gateStatusService.waitForGateStatus(GateStatus.VENTILATION);
         }
         //deactivated to avoid unwanted door opening
-        //gateCloseOpenButton.pressFor(defaultButtonPressTimeout);
+        gateCloseOpenButton.pressFor(defaultButtonPressTimeout);
         gateStatusService.waitForGateStatus(GateStatus.OPEN);
         gateStatusService.setGateInteractionInProgress(false);
         return gateStatusService.getActualGateStatus();

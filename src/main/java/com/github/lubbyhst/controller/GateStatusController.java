@@ -65,8 +65,7 @@ public class GateStatusController {
     @RequestMapping(value = "/gate/open", method = RequestMethod.GET)
     public String open(final Model model) {
         gateVentilationService.reset();
-        //while in test phase. For security deactivated
-        //gateControlService.openGate();
+        gateControlService.openGate();
         setModelAttributes(model);
         return "dashboard";
     }
