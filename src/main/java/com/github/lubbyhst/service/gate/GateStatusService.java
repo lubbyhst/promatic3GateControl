@@ -1,7 +1,7 @@
 package com.github.lubbyhst.service.gate;
 
 import java.time.Duration;
-import java.util.function.Function;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import org.openqa.selenium.TimeoutException;
@@ -59,26 +59,28 @@ public class GateStatusService {
     public GateStatus waitForGateStatus(final GateStatus gateStatusToWaitFor){
         GateStatus gateStatus = getActualGateStatus();
         try {
-             gateStatus = new FluentWait<>(gateStatusToWaitFor)
-                    .withTimeout(Duration.ofSeconds(30))
-                    .pollingEvery(Duration.ofSeconds(1)).until(new Function<GateStatus, GateStatus>() {
-                        @Override
-                        public GateStatus apply(final GateStatus gateStatusToWaitFor) {
-                            if (getActualGateStatus().equals(gateStatusToWaitFor) && GateStatus.CLOSED.equals(gateStatusToWaitFor)) {
-                                return GateStatus.CLOSED;
-                            }
-                            if (getActualGateStatus().equals(gateStatusToWaitFor) && GateStatus.OPEN.equals(gateStatusToWaitFor)) {
-                                return GateStatus.OPEN;
-                            }
-                            if (getActualGateStatus().equals(gateStatusToWaitFor) && GateStatus.VENTILATION.equals(gateStatusToWaitFor)) {
-                                return GateStatus.VENTILATION;
-                            }
-                            logger.info(String.format("Waiting for gate to change status from %s to %s", getActualGateStatus(), gateStatusToWaitFor));
-                            return null;
+            gateStatus = new FluentWait<>(gateStatusToWaitFor).withTimeout(Duration.ofSeconds(30)).pollingEvery(Duration.ofSeconds(1))
+                    .until(gateStatusToWaitFor1 -> {
+                        if (getActualGateStatus().equals(gateStatusToWaitFor1) && GateStatus.CLOSED.equals(gateStatusToWaitFor1)) {
+                            return GateStatus.CLOSED;
                         }
+                        if (getActualGateStatus().equals(gateStatusToWaitFor1) && GateStatus.OPEN.equals(gateStatusToWaitFor1)) {
+                            return GateStatus.OPEN;
+                        }
+                        if (getActualGateStatus().equals(gateStatusToWaitFor1) && GateStatus.VENTILATION.equals(gateStatusToWaitFor1)) {
+                            return GateStatus.VENTILATION;
+                        }
+                        logger.info(String.format("Waiting for gate to change status from %s to %s", getActualGateStatus(),
+                                gateStatusToWaitFor1));
+                        return null;
                     });
-        }catch (final TimeoutException ex){
-            logger.severe(String.format("Gate did not reach the expected status within timeout. Actual status %s, Status wanted %s", gateStatus, gateStatusToWaitFor));
+            TimeUnit.MILLISECONDS.sleep(500);
+        } catch (final TimeoutException ex) {
+            logger.severe(
+                    String.format("Gate did not reach the expected status within timeout. Actual status %s, Status wanted %s", gateStatus,
+                            gateStatusToWaitFor));
+        } catch (final InterruptedException e) {
+            logger.severe(String.format("Interruptexception while sleeping. Message %s", e.getMessage()));
         }
         return gateStatus;
     }
