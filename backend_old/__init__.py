@@ -4,10 +4,6 @@ import yaml
 
 config = yaml.safe_load(open("config.yml"))
 pi = pigpio.pi(config.get('pigpio').get('hostname'), config.get('pigpio').get('port'))
-server = Flask(__name__)
+api = Flask(__name__)
 
-from api import endpoints
-
-
-if __name__ == '__main__':
-    server.run()
+from src.http.api import endpoints

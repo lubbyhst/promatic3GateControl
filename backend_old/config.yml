@@ -1,0 +1,15 @@
+pigpio:
+  hostname: "192.168.0.83"
+  port: "8888"
+gpio:
+  sensor:
+    humidity:
+      indoor: 21
+    status:
+      open: 27
+      close: 17
+      ventilation: 22
+  switch:
+    press_timeout_in_ms: 100
+    close_open: 23
+    ventilation: 24

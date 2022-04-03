@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "promatic-3-gate-control-api"
+version = "0.1.0"
+description = "Backend api to query status information and send commands"
+authors = ["Falk Lubiniecki <info@fa-lu.de>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+Flask = "^2.1.1"
+pigpio = "^1.78"
+PyYAML = "^6.0"
+pigpio-dht = "^0.3.6"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
